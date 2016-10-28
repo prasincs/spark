@@ -53,6 +53,7 @@ import org.apache.spark.rdd._
 import org.apache.spark.rpc.RpcEndpointRef
 import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster.{CoarseGrainedSchedulerBackend, StandaloneSchedulerBackend}
+import org.apache.spark.scheduler.cluster.cook.CoarseCookSchedulerBackend
 import org.apache.spark.scheduler.cluster.mesos.{MesosCoarseGrainedSchedulerBackend, MesosFineGrainedSchedulerBackend}
 import org.apache.spark.scheduler.local.LocalSchedulerBackend
 import org.apache.spark.storage._
@@ -2450,6 +2451,11 @@ object SparkContext extends Logging {
         val backend = new LocalSchedulerBackend(sc.getConf, scheduler, 1)
         scheduler.initialize(backend)
         (backend, scheduler)
+      case COOK_REGEX(user, pass, url, port) =>
+            val scheduler = new TaskSchedulerImpl(sc)
+            val backend = new CoarseCookSchedulerBackend(scheduler, sc, url, port.toInt, user, pass)
+            scheduler.initialize(backend)
+            (backend, scheduler)
 
       case LOCAL_N_REGEX(threads) =>
         def localCpuCount: Int = Runtime.getRuntime.availableProcessors()
@@ -2556,6 +2562,8 @@ private object SparkMasterRegex {
   val SPARK_REGEX = """spark://(.*)""".r
   // Regular expression for connection to Mesos cluster by mesos:// or mesos://zk:// url
   val MESOS_REGEX = """mesos://(.*)""".r
+  // Regular expression for connection to Cook Scheduler
+  val COOK_REGEX = """cook://(?:(.*):(.*)@)?(.*):([0-9]+)""".r
 }
 
 /**

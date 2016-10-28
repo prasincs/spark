@@ -40,6 +40,11 @@
       <classifier>${avro.mapred.classifier}</classifier>
     </dependency>
     <dependency>
+      <groupId>com.twosigma</groupId>
+      <artifactId>cook.jobclient</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
